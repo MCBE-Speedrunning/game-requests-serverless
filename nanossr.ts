@@ -1,0 +1,78 @@
+/**
+ * Copyright 2022 Aaron <https://github.com/AaronO>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+/// <reference lib="dom" />
+export * from "https://deno.land/x/nano_jsx@v0.0.22/mod.ts";
+export { tw } from "https://cdn.skypack.dev/twind@0.16.16";
+
+import {
+	Helmet,
+	renderSSR as nanoRender,
+} from "https://deno.land/x/nano_jsx@v0.0.22/mod.ts";
+import { setup } from "https://cdn.skypack.dev/twind@0.16.16";
+import {
+	getStyleTag,
+	virtualSheet,
+} from "https://cdn.skypack.dev/twind@0.16.16/sheets";
+import typography from "https://cdn.skypack.dev/@twind/typography@0.0.2";
+
+let SHEET_SINGLETON: any = null;
+function sheet(twOptions = {}) {
+	return SHEET_SINGLETON ?? (SHEET_SINGLETON = setupSheet(twOptions));
+}
+
+// Setup TW sheet singleton
+function setupSheet(twOptions: Record<string, any>) {
+	const sheet = virtualSheet();
+	setup({
+		...twOptions,
+		sheet,
+		plugins: { ...typography(), ...twOptions?.plugins },
+	});
+	return sheet;
+}
+
+function html({ body, head, footer, styleTag }: {
+	body: string;
+	head: HTMLElement[];
+	footer: HTMLElement[];
+	styleTag: string;
+}) {
+	return (`
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    ${head}
+    ${styleTag}
+  </head>
+  <body>
+    ${body}
+    ${footer.join("\n")}
+  </body>
+<html>
+`);
+}
+
+export function ssr(render: CallableFunction, options?: any) {
+	sheet(options?.tw ?? {}).reset();
+	const app = nanoRender(render(), options);
+	const { body, head, footer } = Helmet.SSR(app);
+	const styleTag = getStyleTag(sheet());
+	return new Response(
+		html({ body, head, footer, styleTag }),
+		{ headers: { "content-type": "text/html" } },
+	);
+}
+
+export function memoizedSSR(render: CallableFunction, options?: any) {
+	let mresp: Response | undefined;
+	return () => {
+		const resp = mresp ?? (mresp = ssr(render, options));
+		return resp.clone();
+	};
+}
