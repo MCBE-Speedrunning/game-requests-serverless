@@ -222,8 +222,11 @@ function Form({ message }: { message?: string }) {
 							id="releasedate"
 							name="releasedate"
 							required
-							class={tw
-								`text-black bg-gray-100 dark:bg-gray-700 dark:text-white`}
+							class={tw`
+								block
+								text-black
+								bg-gray-100
+								dark:bg-gray-700 dark:text-white`}
 							pattern="\d{4}-\d{2}-\d{2}"
 						/>
 					</Label>
