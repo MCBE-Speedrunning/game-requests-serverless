@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,DENO_DEPLOYMENT_ID --no-check --watch
+#!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,DENO_DEPLOYMENT_ID --allow-read=.env,.env.defaults --no-check --watch
 /** @jsx h */
 /** @jsxFrag Fragment */
 import { Fragment, h, Helmet, ssr, tw } from "./nanossr.ts";
@@ -103,28 +103,29 @@ function TextArea(
 }
 
 function Form({ message }: { message?: string }) {
+message = "yey"
 	return (
 		<>
 			<Helmet>
 				<body class={tw`m-0 bg-white text-black`} />
 			</Helmet>
 			<div
-				class={tw`container md:mx-auto md:px-96 py-4`}
+				class={tw`container md:mx-auto md:px-96 p-4`}
 			>
 				{message
 					? (
-						<h1 class={tw`text-green-600`}>
+						<h1 class={tw`text-green-600 text-4xl py-4`}>
 							{message}
 						</h1>
 					)
 					: ""}
 
-				<h1 class={tw`text-7xl`}>
+				<h1 class={tw`text-5xl`}>
 					Minecraft Leaderboard Request Form
 				</h1>
 
 				<a
-					href="https://git.mcbe.wtf/MCBE-Speedrunning/Game-Requests"
+					href="https://github.com/MCBE-Speedrunning/game-requests-serverless"
 					target="_blank"
 					class={tw`
 					text-blue-500
@@ -146,18 +147,14 @@ function Form({ message }: { message?: string }) {
 							name="edition"
 							required
 							class={tw`
-						block
-						mt-1
-						rounded-md
-						border-gray-300
-						shadow-sm
-						form-select
-						dark:text-white
-						focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-
-
-
-						`}
+								block
+								mt-1
+								rounded-md
+								border-gray-300
+								shadow-sm
+								form-select
+								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+							`}
 						>
 							Edition
 
@@ -248,9 +245,7 @@ function Form({ message }: { message?: string }) {
 
 					<Label>
 						Additional notes
-						<TextArea name="notes" maxlength="1024" required>
-							No additional notes provided
-						</TextArea>
+						<TextArea name="notes" maxlength="1024" required placeholder="No additional notes provided" />
 					</Label>
 
 					<Label>
@@ -332,13 +327,13 @@ author`,
 
 	const game = {
 		edition,
-		name: body.get("name")!,
-		website: body.get("website")!,
-		video: body.get("video")!,
-		rules: body.get("rules")!,
-		aboutme: body.get("aboutme")!,
-		notes: body.get("notes")!,
-		author: body.get("author")!,
+		name: body.get("game") || "No game/map provided",
+		website: body.get("website") || "No website provided",
+		video: body.get("video") || "No video provided",
+		rules: body.get("rules") || "No rules provided",
+		aboutme: body.get("aboutme") || "No about me provided",
+		notes: body.get("notes") || "No additional nodes provided",
+		author: body.get("author") || "No author provided",
 	};
 
 	const discordResponse = await fetch(
@@ -357,7 +352,7 @@ author`,
 						fields: [
 							{
 								name: "Game/Map Name",
-								value: game.name || "No name provided",
+								value: game.name,
 								inline: true,
 							},
 							{
@@ -367,7 +362,7 @@ author`,
 							},
 							{
 								name: "Proposed Categories and Rules",
-								value: game.rules || "No rules provided",
+								value: game.rules,
 							},
 							{
 								name: "Video of Completed Run",
@@ -375,11 +370,11 @@ author`,
 							},
 							{
 								name: "Player Info",
-								value: game.aboutme || "No info provided",
+								value: game.aboutme,
 							},
 							{
 								name: "Additional Notes",
-								value: game.notes || "No Additional notes provided",
+								value: game.notes,
 							},
 						],
 						author: {
