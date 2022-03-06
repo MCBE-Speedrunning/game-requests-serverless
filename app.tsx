@@ -97,10 +97,32 @@ function Form({ message }: { message?: string }) {
 	return (
 		<>
 			<Helmet>
+				<html lang="en" />
 				<body class={tw`m-0 bg-white text-black`} />
+				<title>
+					Minecraft Leaderboard Request Form
+				</title>
+
+				<meta
+					property="og:title"
+					content="Minecraft Leaderboard Request Form"
+				/>
+				<meta
+					name="description"
+					content="A form for submitting new minecraft games and maps to speedrun.com"
+				/>
+				<meta
+					property="og:description"
+					content="A form for submitting new minecraft games and maps to speedrun.com"
+				/>
+				<meta property="og:locale" content="en_US" />
+				<meta property="og:site_name" content="Minecraft speedrunning form" />
+				<meta name="theme-color" content="#199C77" />
+
 			</Helmet>
+
 			<div
-				class={tw`container md:mx-auto md:px-96 p-4`}
+				class={tw`container md:mx-auto md:px-96 px-4 py-8`}
 			>
 				{message
 					? (
@@ -123,6 +145,9 @@ function Form({ message }: { message?: string }) {
 						transition-all
 						ease-in-out
 						duration-300
+						py-4
+						text-lg
+						inline-block
 						hover:underline`}
 				>
 					Git Repository
@@ -264,6 +289,12 @@ function Form({ message }: { message?: string }) {
 						Submit
 					</button>
 				</form>
+				<script>
+					{/** Prevent a refresh from re-submitting the form */}
+					{`if ( window.history.replaceState ) {
+						window.history.replaceState( null, null, window.location.href );
+					}`}
+				</script>
 			</div>
 		</>
 	);

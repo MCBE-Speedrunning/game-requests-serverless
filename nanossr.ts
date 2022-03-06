@@ -5,13 +5,13 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /// <reference lib="dom" />
-export * from "https://deno.land/x/nano_jsx@v0.0.22/mod.ts";
+export * from "https://deno.land/x/nano_jsx@v0.0.30/mod.ts";
 export { tw } from "https://cdn.skypack.dev/twind@0.16.16";
 
 import {
 	Helmet,
 	renderSSR as nanoRender,
-} from "https://deno.land/x/nano_jsx@v0.0.22/mod.ts";
+} from "https://deno.land/x/nano_jsx@v0.0.30/mod.ts";
 import { setup } from "https://cdn.skypack.dev/twind@0.16.16";
 import {
 	getStyleTag,
@@ -35,22 +35,30 @@ function setupSheet(twOptions: Record<string, any>) {
 	return sheet;
 }
 
-function html({ body, head, footer, styleTag }: {
+function html({ body, head, footer, styleTag, attributes }: {
 	body: string;
-	head: HTMLElement[];
-	footer: HTMLElement[];
+	head: string[];
+	footer: string[];
 	styleTag: string;
+	attributes: {
+		html: {
+			toString(): string;
+		};
+		body: {
+			toString(): string;
+		};
+	}
 }) {
 	return (`
 <!DOCTYPE html>
-<html lang="en">
+<html ${attributes.html.toString()}>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     ${head}
     ${styleTag}
   </head>
-  <body>
+  <body ${attributes.body.toString()}>
     ${body}
     ${footer.join("\n")}
   </body>
@@ -61,10 +69,10 @@ function html({ body, head, footer, styleTag }: {
 export function ssr(render: CallableFunction, options?: any) {
 	sheet(options?.tw ?? {}).reset();
 	const app = nanoRender(render(), options);
-	const { body, head, footer } = Helmet.SSR(app);
+	const { body, head, footer, attributes } = Helmet.SSR(app);
 	const styleTag = getStyleTag(sheet());
 	return new Response(
-		html({ body, head, footer, styleTag }),
+		html({ body, head, footer, styleTag, attributes }),
 		{ headers: { "content-type": "text/html" } },
 	);
 }
