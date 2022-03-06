@@ -20,7 +20,7 @@ import {
 	STATUS_TEXT,
 } from "https://deno.land/std@0.128.0/http/mod.ts";
 
-if (Deno.env.get("DENO_DEPLOYMENT_ID")) config({ export: true });
+if (!Deno.env.get("DENO_DEPLOYMENT_ID")) config({ export: true });
 
 const webhookURL = {
 	bedrock: Deno.env.get("BEDROCK"),
