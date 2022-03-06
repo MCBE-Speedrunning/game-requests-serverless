@@ -103,7 +103,6 @@ function TextArea(
 }
 
 function Form({ message }: { message?: string }) {
-message = "yey"
 	return (
 		<>
 			<Helmet>
