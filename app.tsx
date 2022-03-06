@@ -2,16 +2,7 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
 import { Fragment, h, Helmet, ssr, tw } from "./nanossr.ts";
-import formsPlugin, {
-	formCheckbox,
-	formField,
-	formFile,
-	formInput,
-	formRadio,
-	forms,
-	formSelect,
-	formTextarea,
-} from "https://esm.sh/@twind/forms@0.1.4";
+import { formSelect } from "https://esm.sh/@twind/forms@0.1.4";
 import * as log from "https://deno.land/std@0.125.0/log/mod.ts";
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
 import {
@@ -30,22 +21,16 @@ const webhookURL = {
 
 const twConfig = {
 	plugins: {
-		forms,
-		"form-checkbox": formCheckbox,
-		"form-field": formField,
-		"form-file": formFile,
-		"form-input": formInput,
-		"form-radio": formRadio,
 		"form-select": formSelect,
-		"form-textarea": formTextarea,
 	},
 };
 
 function Input(
-	{ name, maxlength, required = false }: {
+	{ name, maxlength, required = false, id }: {
 		name: string;
 		maxlength: string | number;
 		required?: boolean;
+		id?: string;
 	},
 ) {
 	return (
@@ -67,21 +52,27 @@ function Input(
 	);
 }
 
-function Label({ children }: { children: any }) {
-	return <label class={tw`block text-2xl font-bold`}>{children}</label>;
+function Label({ children, htmlFor }: { children: any; htmlFor: string }) {
+	return (
+		<label class={tw`block text-2xl font-bold`} htmlFor={htmlFor}>
+			{children}
+		</label>
+	);
 }
 
 function TextArea(
-	{ children, name, placeholder, maxlength, required = false }: {
+	{ children, name, placeholder, maxlength, required = false, id }: {
 		children?: any;
 		name: string;
 		placeholder?: string;
 		maxlength: number | string;
 		required?: boolean;
+		id?: string;
 	},
 ) {
 	return (
 		<textarea
+			id={id}
 			name={name}
 			maxlength={maxlength}
 			placeholder={placeholder}
@@ -127,22 +118,23 @@ function Form({ message }: { message?: string }) {
 					href="https://github.com/MCBE-Speedrunning/game-requests-serverless"
 					target="_blank"
 					class={tw`
-					text-blue-500
-					no-underline
-					transition-all
-					ease-in-out
-					duration-300
-					hover:underline`}
+						text-blue-500
+						no-underline
+						transition-all
+						ease-in-out
+						duration-300
+						hover:underline`}
 				>
 					Git Repository
 				</a>
 				<hr />
 
 				<form action="/" method="POST">
-					<Label>
+					<Label htmlFor="edition">
 						Minecraft Edition
 
 						<select
+							id="edition"
 							name="edition"
 							required
 							class={tw`
@@ -184,28 +176,31 @@ function Form({ message }: { message?: string }) {
 
 					<br />
 
-					<Label>
+					<Label htmlFor="game">
 						Game/Map name
 
 						<Input
+							id="game"
 							name="game"
 							maxlength="1024"
 							required
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="website">
 						Download/Website link
 						<Input
+							id="website"
 							name="website"
 							maxlength="1024"
 							required
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="rules">
 						Proposed categories and rules
 						<TextArea
+							id="rules"
 							name="rules"
 							maxlength="1024"
 							placeholder="When timing starts/ends Additional restrictions"
@@ -213,28 +208,31 @@ function Form({ message }: { message?: string }) {
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="video">
 						Video of a completed run
 						<Input
+							id="video"
 							name="video"
 							maxlength="1024"
 							required
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="author">
 						Your discord tag and/or speedrun.com username or other ways to
 						contact you.
 						<Input
+							id="author"
 							name="author"
 							maxlength="1024"
 							required
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="aboutme">
 						A bit about yourself
 						<TextArea
+							id="aboutme"
 							name="aboutme"
 							placeholder="A message about yourself. "
 							maxlength="1024"
@@ -242,14 +240,20 @@ function Form({ message }: { message?: string }) {
 						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="notes">
 						Additional notes
-						<TextArea name="notes" maxlength="1024" required placeholder="No additional notes provided" />
+						<TextArea
+							id="notes"
+							name="notes"
+							maxlength="1024"
+							required
+							placeholder="No additional notes provided"
+						/>
 					</Label>
 
-					<Label>
+					<Label htmlFor="math">
 						What's 9+10?
-						<Input name="math" maxlength="10" required />
+						<Input id="math" name="math" maxlength="10" required />
 					</Label>
 
 					<br />
