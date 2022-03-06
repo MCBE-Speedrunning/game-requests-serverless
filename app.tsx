@@ -46,8 +46,8 @@ function Input(
 				rounded-md
 				bg-gray-100
 				border-2
-				dark:text-black
-				focus:border-black focus:bg-white focus:ring-0 focus:w-full
+				dark:bg-gray-700
+				focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
 			`}
 		/>
 	);
@@ -84,9 +84,9 @@ function TextArea(
 					w-fit
 					rounded-md
 					bg-gray-100
+					dark:bg-gray-700
 					border-2
-					dark:text-black
-					focus:border-black focus:bg-white focus:ring-0 focus:w-full
+					focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
 			`}
 		>
 			{children}
@@ -99,7 +99,9 @@ function Form({ message }: { message?: string }) {
 		<>
 			<Helmet>
 				<html lang="en" />
-				<body class={tw`m-0 bg-white text-black dark:text-white dark:bg-gray-900`} />
+				<body
+					class={tw`m-0 bg-white text-black dark:text-white dark:bg-gray-900`}
+				/>
 				<title>
 					Minecraft Leaderboard Request Form
 				</title>
@@ -169,7 +171,8 @@ function Form({ message }: { message?: string }) {
 								border-gray-300
 								shadow-sm
 								form-select
-								dark:text-black
+								bg-gray-100
+								dark:bg-gray-700
 								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
 							`}
 						>
@@ -219,7 +222,8 @@ function Form({ message }: { message?: string }) {
 							id="releasedate"
 							name="releasedate"
 							required
-							class="dark:text-black"
+							class={tw
+								`text-black bg-gray-100 dark:bg-gray-700 dark:text-white`}
 							pattern="\d{4}-\d{2}-\d{2}"
 						/>
 					</Label>
