@@ -118,7 +118,6 @@ function Form({ message }: { message?: string }) {
 				<meta property="og:locale" content="en_US" />
 				<meta property="og:site_name" content="Minecraft speedrunning form" />
 				<meta name="theme-color" content="#199C77" />
-
 			</Helmet>
 
 			<div
@@ -209,6 +208,16 @@ function Form({ message }: { message?: string }) {
 							name="game"
 							maxlength="1024"
 							required
+						/>
+					</Label>
+					<Label htmlFor="releasedate">
+						Release Date in any region
+						<input
+							type="date"
+							id="releasedate"
+							name="releasedate"
+							required
+							pattern="\d{4}-\d{2}-\d{2}"
 						/>
 					</Label>
 
@@ -309,7 +318,8 @@ function validateGameRequestBody(body: URLSearchParams): boolean {
 		body.has("rules") &&
 		body.has("aboutme") &&
 		body.has("notes") &&
-		body.has("author")
+		body.has("author") &&
+		body.has("releasedate")
 	);
 }
 
@@ -368,6 +378,9 @@ author`,
 		aboutme: body.get("aboutme") || "No about me provided",
 		notes: body.get("notes") || "No additional nodes provided",
 		author: body.get("author") || "No author provided",
+		releasedate: body.has("releasedate")
+			? new Date(body.get("releasedate")!).getTime()
+			: "No release date provided",
 	};
 
 	const discordResponse = await fetch(
@@ -387,6 +400,13 @@ author`,
 							{
 								name: "Game/Map Name",
 								value: game.name,
+								inline: true,
+							},
+							{
+								name: "Release date",
+								value: typeof game.releasedate === "number"
+									? `<t:${Math.floor(game.releasedate / 1000)}:D>`
+									: game.releasedate,
 								inline: true,
 							},
 							{

@@ -47,7 +47,7 @@ function html({ body, head, footer, styleTag, attributes }: {
 		body: {
 			toString(): string;
 		};
-	}
+	};
 }) {
 	return (`
 <!DOCTYPE html>
