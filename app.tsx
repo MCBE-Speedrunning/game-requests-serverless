@@ -122,7 +122,7 @@ function Form({ message }: { message?: string }) {
 			</Helmet>
 
 			<div
-				class={tw`container md:mx-auto md:px-96 px-4 py-8`}
+				class={tw`container mx-auto xl:px-96 px-4 py-8`}
 			>
 				{message
 					? (
