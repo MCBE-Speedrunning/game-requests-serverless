@@ -1,6 +1,7 @@
-#!/usr/bin/env -S deno run --allow-net --allow-env=bedrock,other,java --no-check --watch
+#!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,DENO_DEPLOYMENT_ID --no-check --watch
 /** @jsx h */
-import { h, ssr, tw } from "./nanossr.ts";
+/** @jsxFrag Fragment */
+import { Fragment, h, Helmet, ssr, tw } from "./nanossr.ts";
 import formsPlugin, {
 	formCheckbox,
 	formField,
@@ -12,11 +13,19 @@ import formsPlugin, {
 	formTextarea,
 } from "https://esm.sh/@twind/forms@0.1.4";
 import * as log from "https://deno.land/std@0.125.0/log/mod.ts";
+import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
+import {
+	serve,
+	Status,
+	STATUS_TEXT,
+} from "https://deno.land/std@0.128.0/http/mod.ts";
+
+if (Deno.env.get("DENO_DEPLOYMENT_ID")) config({ export: true });
 
 const webhookURL = {
-	bedrock: Deno.env.get("bedrock"),
-	other: Deno.env.get("other"),
-	java: Deno.env.get("java"),
+	bedrock: Deno.env.get("BEDROCK"),
+	other: Deno.env.get("OTHER"),
+	java: Deno.env.get("JAVA"),
 };
 
 const twConfig = {
@@ -32,171 +41,233 @@ const twConfig = {
 	},
 };
 
-import {
-	serve,
-	Status,
-	STATUS_TEXT,
-} from "https://deno.land/std@0.125.0/http/mod.ts";
+function Input(
+	{ name, maxlength, required = false }: {
+		name: string;
+		maxlength: string | number;
+		required?: boolean;
+	},
+) {
+	return (
+		<input
+			type="text"
+			name={name}
+			maxlength={maxlength}
+			required={required}
+			class={tw`
+				mt-1
+				block
+				w-fit
+				rounded-md
+				bg-gray-100
+				border-2
+				focus:border-black focus:bg-white focus:ring-0 focus:w-full
+			`}
+		/>
+	);
+}
+
+function Label({ children }: { children: any }) {
+	return <label class={tw`block text-2xl font-bold`}>{children}</label>;
+}
+
+function TextArea(
+	{ children, name, placeholder, maxlength, required = false }: {
+		children?: any;
+		name: string;
+		placeholder?: string;
+		maxlength: number | string;
+		required?: boolean;
+	},
+) {
+	return (
+		<textarea
+			name={name}
+			maxlength={maxlength}
+			placeholder={placeholder}
+			required={required}
+			class={tw`
+					mt-1
+					block
+					w-fit
+					rounded-md
+					bg-gray-100
+					border-2
+					focus:border-black focus:bg-white focus:ring-0 focus:w-full
+
+			`}
+		>
+			{children}
+		</textarea>
+	);
+}
 
 function Form({ message }: { message?: string }) {
 	return (
-		<div class={tw`container mx-auto`}>
-			{message
-				? (
-					<h1 class={tw`text-green-600`}>
-						{message}
-					</h1>
-				)
-				: ""}
+		<>
+			<Helmet>
+				<body class={tw`m-0 bg-white text-black`} />
+			</Helmet>
+			<div
+				class={tw`container md:mx-auto md:px-96 py-4`}
+			>
+				{message
+					? (
+						<h1 class={tw`text-green-600`}>
+							{message}
+						</h1>
+					)
+					: ""}
 
-			<h1 class={tw`text-7xl`}>
-				Minecraft Leaderboard Request Form
-			</h1>
+				<h1 class={tw`text-7xl`}>
+					Minecraft Leaderboard Request Form
+				</h1>
 
-			<a
-				href="https://git.mcbe.wtf/MCBE-Speedrunning/Game-Requests"
-				target="_blank"
-				class={tw`
+				<a
+					href="https://git.mcbe.wtf/MCBE-Speedrunning/Game-Requests"
+					target="_blank"
+					class={tw`
 					text-blue-500
 					no-underline
 					transition-all
 					ease-in-out
 					duration-300
 					hover:underline`}
-			>
-				Git Repository
-			</a>
-			<hr />
+				>
+					Git Repository
+				</a>
+				<hr />
 
-			<form action="/" method="POST">
+				<form action="/" method="POST">
+					<Label>
+						Minecraft Edition
 
-				<label class={tw`block`}>
-					Minecraft Edition
-
-					<select
-						name="edition"
-						required
-						class={tw`
+						<select
+							name="edition"
+							required
+							class={tw`
 						block
 						mt-1
 						rounded-md
 						border-gray-300
 						shadow-sm
 						form-select
-						focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
-					>
-						Edition
+						dark:text-white
+						focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
 
-						{webhookURL.bedrock
-							? (
-								<option value="bedrock" selected="selected">
-									Bedrock Edition
-								</option>
-							)
-							: ""}
 
-						{webhookURL.other
-							? (
-								<option value="other">
-									Other
-								</option>
-							)
-							: ""}
 
-						<option value="java">
-							Java Edition
-						</option>
-					</select>
-				</label>
+						`}
+						>
+							Edition
 
-				<br />
+							{webhookURL.bedrock
+								? (
+									<option value="bedrock" selected="selected">
+										Bedrock Edition
+									</option>
+								)
+								: ""}
 
-				<label class={tw`block`}>
-					Game/Map name
+							{webhookURL.other
+								? (
+									<option value="other">
+										Other
+									</option>
+								)
+								: ""}
+							{webhookURL.java
+								? (
+									<option value="java">
+										Java Edition
+									</option>
+								)
+								: ""}
+						</select>
+					</Label>
 
-					<input
-						type="text"
-						name="game"
-						maxlength="1024"
-						required
-						class={tw`
-						mt-1
-						block
-						rounded-md
-						border-gray-300
-						shadow-sm
-						focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50`}
+					<br />
+
+					<Label>
+						Game/Map name
+
+						<Input
+							name="game"
+							maxlength="1024"
+							required
 						/>
-				</label>
+					</Label>
 
-				<h2>Download/Website link</h2>
-				<input
-					type="text"
-					name="website"
-					maxlength="1024"
-					required="required"
-				/>
+					<Label>
+						Download/Website link
+						<Input
+							name="website"
+							maxlength="1024"
+							required
+						/>
+					</Label>
 
-				<h2>Proposed categories and rules</h2>
-				<textarea
-					name="rules"
-					maxlength="1024"
-					placeholder="When timing starts/ends Additional restrictions"
-					required
-					class={tw`
-					forms-textarea
-					mt-1
-                    block
-                    w-full
-                    rounded-md
-                    border-gray-300
-                    shadow-sm
-                    focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-					`}
-				>
-				</textarea>
+					<Label>
+						Proposed categories and rules
+						<TextArea
+							name="rules"
+							maxlength="1024"
+							placeholder="When timing starts/ends Additional restrictions"
+							required
+						/>
+					</Label>
 
-				<h2>Video of a completed run</h2>
-				<input
-					type="text"
-					name="video"
-					maxlength="1024"
-					required="required"
-				/>
+					<Label>
+						Video of a completed run
+						<Input
+							name="video"
+							maxlength="1024"
+							required
+						/>
+					</Label>
 
-				<h2>
-					Your discord tag and/or speedrun.com username or other ways to contact
-					you.
-				</h2>
-				<input
-					type="text"
-					name="author"
-					maxlength="1024"
-					required="required"
-				/>
+					<Label>
+						Your discord tag and/or speedrun.com username or other ways to
+						contact you.
+						<Input
+							name="author"
+							maxlength="1024"
+							required
+						/>
+					</Label>
 
-				<h2>A bit about yourself</h2>
-				<textarea
-					name="aboutme"
-					placeholder="A message about yourself. "
-					maxlength="1024"
-					required="required"
-				>
-				</textarea>
+					<Label>
+						A bit about yourself
+						<TextArea
+							name="aboutme"
+							placeholder="A message about yourself. "
+							maxlength="1024"
+							required
+						/>
+					</Label>
 
-				<h2>Additional notes</h2>
-				<textarea name="notes" maxlength="1024" required="required">
-					No additional notes provided
-				</textarea>
+					<Label>
+						Additional notes
+						<TextArea name="notes" maxlength="1024" required>
+							No additional notes provided
+						</TextArea>
+					</Label>
 
-				<h2>What's 9+10?</h2>
-				<input type="text" name="math" maxlength="10" required="required" />
+					<Label>
+						What's 9+10?
+						<Input name="math" maxlength="10" required />
+					</Label>
 
-				<br />
-				<br />
-				<button type="submit">Submit</button>
-			</form>
-		</div>
+					<br />
+					<button
+						class={tw`rounded-full bg-gray-100 px-4 py-2 w-fit`}
+						type="submit"
+					>
+						Submit
+					</button>
+				</form>
+			</div>
+		</>
 	);
 }
 
@@ -335,8 +406,10 @@ author`,
 		tw: twConfig,
 	});
 }
+let formPageResponse: Response | false = false;
 
-serve(async (req) => {
+console.log("Listening on http://0.0.0.0:8000");
+await serve(async (req: Request) => {
 	const url = new URL(req.url);
 	const { pathname } = url;
 	let response: Response;
@@ -345,9 +418,12 @@ serve(async (req) => {
 		case "/": {
 			if (req.method === "POST") response = await submitForm(req);
 			else {
-				response = ssr(() => <Form />, {
-					tw: twConfig,
-				});
+				if (!formPageResponse) {
+					formPageResponse = ssr(() => <Form />, {
+						tw: twConfig,
+					});
+				}
+				response = formPageResponse.clone();
 			}
 			break;
 		}
