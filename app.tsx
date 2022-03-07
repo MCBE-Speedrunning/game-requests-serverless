@@ -41,8 +41,8 @@ function Input(
 			required={required}
 			class={tw`
 				mt-1
+				w-1/2
 				block
-				w-fit
 				rounded-md
 				bg-gray-100
 				border-2
@@ -79,14 +79,14 @@ function TextArea(
 			placeholder={placeholder}
 			required={required}
 			class={tw`
-					mt-1
-					block
-					w-fit
-					rounded-md
-					bg-gray-100
-					dark:bg-gray-700
-					border-2
-					focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
+				mt-1
+				w-1/2
+				block
+				rounded-md
+				bg-gray-100
+				dark:bg-gray-700
+				border-2
+				focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
 			`}
 		>
 			{children}
@@ -128,13 +128,13 @@ function Form({ message }: { message?: string }) {
 			>
 				{message
 					? (
-						<h1 class={tw`text-green-600 text-4xl py-4`}>
+						<h1 class={tw`text-green-600 text-4xl font-bold py-4`}>
 							{message}
 						</h1>
 					)
 					: ""}
 
-				<h1 class={tw`text-5xl`}>
+				<h1 class={tw`text-5xl font-bold`}>
 					Minecraft Leaderboard Request Form
 				</h1>
 
@@ -172,8 +172,9 @@ function Form({ message }: { message?: string }) {
 								shadow-sm
 								form-select
 								bg-gray-100
+								w-1/2
 								dark:bg-gray-700
-								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
+								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 focus:w-full
 							`}
 						>
 							Edition
@@ -223,9 +224,13 @@ function Form({ message }: { message?: string }) {
 							name="releasedate"
 							required
 							class={tw`
+								rounded-md
 								block
+								w-1/2
 								text-black
 								bg-gray-100
+								border-2
+								focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
 								dark:bg-gray-700 dark:text-white`}
 							pattern="\d{4}-\d{2}-\d{2}"
 						/>
