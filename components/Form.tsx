@@ -1,10 +1,14 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
-import { webhookURL } from "../config.ts";
 import { Fragment, h, Helmet, tw } from "../deps.ts";
+import { webhookURL } from "../config.ts";
 import { Input } from "./Input.tsx";
 import { Label } from "./Label.tsx";
 import { TextArea } from "./TextArea.tsx";
+import { Rules } from "./Rules.tsx";
+import { Link } from "./Link.tsx";
+import { Header } from "./Header.tsx";
+import { BreakLine } from "./BreakLine.tsx";
 
 export function Form({ message }: { message?: string }) {
 	return (
@@ -46,27 +50,23 @@ export function Form({ message }: { message?: string }) {
 					)
 					: ""}
 
-				<h1 class={tw`text-5xl font-bold`}>
+				<Header as="h1">
 					Minecraft Leaderboard Request Form
-				</h1>
+				</Header>
 
-				<a
+				<BreakLine />
+
+				<Rules />
+
+				<BreakLine />
+
+				<hr />
+				<Link
 					href="https://github.com/MCBE-Speedrunning/game-requests-serverless"
 					target="_blank"
-					class={tw`
-						text-blue-500
-						no-underline
-						transition-all
-						ease-in-out
-						duration-300
-						py-4
-						text-lg
-						inline-block
-						hover:underline`}
 				>
 					Git Repository
-				</a>
-				<hr />
+				</Link>
 
 				<form action="/" method="POST">
 					<Label htmlFor="edition">
@@ -116,7 +116,7 @@ export function Form({ message }: { message?: string }) {
 						</select>
 					</Label>
 
-					<br />
+					<BreakLine />
 
 					<Label htmlFor="game">
 						Game/Map name
@@ -217,7 +217,8 @@ export function Form({ message }: { message?: string }) {
 						<Input id="math" name="math" maxlength="10" required />
 					</Label>
 
-					<br />
+					<BreakLine />
+
 					<button
 						class={tw`rounded-full bg-gray-100 px-4 py-2 dark:text-black`}
 						type="submit"

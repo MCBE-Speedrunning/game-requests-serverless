@@ -41,7 +41,7 @@ async function submitForm(req: Request): Promise<Response> {
 		});
 	}
 
-	if (body.get("math") != "19") {
+	if (!body.get("math")?.includes("19")) {
 		return new Response("you stupid", {
 			status: Status.BadRequest,
 			statusText: STATUS_TEXT.get(Status.BadRequest),
@@ -159,7 +159,6 @@ author`,
 }
 let formPageResponse: Response | false = false;
 
-console.log("Listening on http://0.0.0.0:8000");
 await serve(async (req: Request) => {
 	const url = new URL(req.url);
 	const { pathname } = url;
@@ -188,4 +187,7 @@ await serve(async (req: Request) => {
 	}
 
 	return response;
+}, {
+	onListen: ({ hostname, port }) =>
+		log.info(`Listening on http://${hostname}${port === 80 ? "" : `:${port}`}`),
 });
