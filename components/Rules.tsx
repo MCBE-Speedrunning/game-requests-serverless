@@ -94,7 +94,7 @@ export function Rules() {
 					Vocabulary/Math and other Educational Games Quiz Games
 				</li>
 				<li>
-					Generic Sudoku Solvers/Minesweeper Remakehs/Rubik's Cube Solvers/etc.
+					Generic Sudoku Solvers/Minesweeper Remakes/Rubik's Cube Solvers/etc.
 				</li>
 				<li>
 					Visual Novels/Interactive Movies
