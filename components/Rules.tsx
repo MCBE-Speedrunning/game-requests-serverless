@@ -79,6 +79,9 @@ export function Rules() {
 					</Link>
 				</li>
 				<li>
+					Unofficial/Extra Category Extensions
+				</li>
+				<li>
 					Short/Trivial Games
 				</li>
 				<li>
