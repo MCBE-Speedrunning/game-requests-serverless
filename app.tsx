@@ -50,7 +50,7 @@ async function hashCaptcha(captcha: string) {
 }
 
 function addSecurityHeaders(headers: Headers) {
-	headers.set("Content-Security-Policy", "img-src 'self' data:");
+	headers.set("Content-Security-Policy", "img-src 'self' data:; script-src-elem 'unsafe-inline'");
 	headers.set("Cross-Origin-Opener-Policy", "same-origin");
 	headers.set("Cross-Origin-Resource-Policy", "same-origin");
 	headers.set(
