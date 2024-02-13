@@ -62,7 +62,7 @@ function html({ body, head, footer, styleTag, attributes }: {
     ${body}
     ${footer.join("\n")}
   </body>
-<html>
+</html>
 `);
 }
 
