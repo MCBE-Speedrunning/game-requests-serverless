@@ -49,6 +49,20 @@ async function hashCaptcha(captcha: string) {
 	return encodeHex(hashBuffer);
 }
 
+function addSecurityHeaders(headers: Headers) {
+	headers.set("Content-Security-Policy", "img-src 'self' data:");
+	headers.set("Cross-Origin-Opener-Policy", "same-origin");
+	headers.set("Cross-Origin-Resource-Policy", "same-origin");
+	headers.set(
+		"Permissions-Policy",
+		"accelerometer=(), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=()",
+	);
+	headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	headers.set("X-Content-Type-Options", "nosniff");
+	headers.set("X-Frame-Options", "SAMEORIGIN");
+	headers.set("Content-Language", "en-US");
+}
+
 /**
  * Handle the game request
  * @param req A request object
@@ -257,6 +271,7 @@ Deno.serve(async (req: Request) => {
 			break;
 		}
 	}
+	addSecurityHeaders(response.headers);
 
 	return response;
 });
