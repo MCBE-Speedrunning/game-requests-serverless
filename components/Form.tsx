@@ -212,9 +212,13 @@ export function Form({ message }: { message?: string }) {
 						/>
 					</Label>
 
-					<Label htmlFor="math">
-						What's 9+10?
-						<Input id="math" name="math" maxlength="10" required />
+					<Label htmlFor="captcha">
+						Please type the characters below
+						<img
+							src="/captcha.png"
+							alt="Captcha image showing various letters and numbers"
+						/>
+						<Input id="captcha" name="captcha" maxlength="10" required />
 					</Label>
 
 					<BreakLine />

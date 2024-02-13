@@ -1,6 +1,8 @@
-import { config } from "./deps.ts";
+import { load } from "./deps.ts";
 
-if (!Deno.env.get("DENO_DEPLOYMENT_ID")) config({ export: true });
+if (!Deno.env.get("DENO_DEPLOYMENT_ID")) {
+	await load({ export: true, examplePath: null, defaultsPath: null });
+}
 
 export const webhookURL = {
 	bedrock: Deno.env.get("BEDROCK"),

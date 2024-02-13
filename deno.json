@@ -1,7 +1,5 @@
 {
 	"fmt": {
-		"options": {
-			"useTabs": true
-		}
+		"useTabs": true
 	}
 }

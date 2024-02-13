@@ -5,18 +5,18 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /// <reference lib="dom" />
-export * from "https://deno.land/x/nano_jsx@v0.0.32/mod.ts";
-export { tw } from "https://esm.sh/twind@0.16.17?pin=v86";
+export * from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
+export { tw } from "https://esm.sh/twind@0.16.19?pin=v135&exports=tw,setup";
 
 import {
 	Helmet,
 	renderSSR as nanoRender,
 } from "https://deno.land/x/nano_jsx@v0.0.32/mod.ts";
-import { setup } from "https://esm.sh/twind@0.16.17?pin=v86";
+import { setup } from "https://esm.sh/twind@0.16.19?pin=v135&exports=tw,setup";
 import {
 	getStyleTag,
 	virtualSheet,
-} from "https://esm.sh/twind@0.16.17/sheets?pin=v86";
+} from "https://esm.sh/twind@0.16.19/sheets?pin=v135&exports=getStyleTag,virtualSheet";
 import typography from "https://esm.sh/@twind/typography@0.0.2?pin=v86";
 
 let SHEET_SINGLETON: any = null;

@@ -1,9 +1,25 @@
-#!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,DENO_DEPLOYMENT_ID --allow-read=.env,.env.defaults --no-check --watch
+#!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,CAPTCHA_PREFIX,DENO_DEPLOYMENT_ID --allow-read=.env,.env.defaults --no-check --watch
 
 /** @jsx h */
+import {
+	getCookies,
+	setCookie,
+} from "https://deno.land/std@0.207.0/http/cookie.ts";
 import { Form } from "./components/Form.tsx";
 import { webhookURL } from "./config.ts";
-import { formSelect, h, log, serve, ssr, Status, STATUS_TEXT } from "./deps.ts";
+import {
+	createCaptcha,
+	encodeHex,
+	formSelect,
+	h,
+	log,
+	ssr,
+	STATUS_CODE,
+	STATUS_TEXT,
+} from "./deps.ts";
+
+const captchaPrefix = Deno.env.get("CAPTCHA_PREFIX") ?? "captcha-prefix";
+const textEncoder = new TextEncoder();
 
 const twConfig = {
 	plugins: {
@@ -25,6 +41,14 @@ function validateGameRequestBody(body: URLSearchParams): boolean {
 	);
 }
 
+async function hashCaptcha(captcha: string) {
+	const hashBuffer = await crypto.subtle.digest(
+		"SHA-256",
+		textEncoder.encode(captchaPrefix + captcha.toUpperCase()),
+	);
+	return encodeHex(hashBuffer);
+}
+
 /**
  * Handle the game request
  * @param req A request object
@@ -36,15 +60,18 @@ async function submitForm(req: Request): Promise<Response> {
 		body = new URLSearchParams(await req.text());
 	} catch (err) {
 		return new Response(`Bad body :/\n${err}`, {
-			status: Status.BadRequest,
-			statusText: STATUS_TEXT.get(Status.BadRequest),
+			status: STATUS_CODE.BadRequest,
+			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
 		});
 	}
 
-	if (!body.get("math")?.includes("19")) {
-		return new Response("you stupid", {
-			status: Status.BadRequest,
-			statusText: STATUS_TEXT.get(Status.BadRequest),
+	const { captcha } = getCookies(req.headers);
+	const captchaHash = await hashCaptcha(body.get("captcha")?.trim() ?? "");
+
+	if (await hashCaptcha(body.get("captcha")?.trim() ?? "") !== captcha) {
+		return new Response("Captcha failed, please try again.", {
+			status: STATUS_CODE.BadRequest,
+			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
 		});
 	}
 
@@ -59,15 +86,14 @@ aboutme
 notes
 author`,
 			{
-				status: Status.BadRequest,
-				statusText: STATUS_TEXT.get(Status.BadRequest),
+				status: STATUS_CODE.BadRequest,
+				statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
 			},
 		);
 	}
 	const edition = body.get("edition")!;
 
 	if (!(edition in webhookURL)) {
-		console.log(webhookURL, edition);
 		return new Response(`Bad edition: ${edition}`);
 	}
 
@@ -147,8 +173,8 @@ author`,
 		return new Response(
 			"Something went wrong and your request was not delivered. Please report this incident to an admin.",
 			{
-				status: Status.InternalServerError,
-				statusText: STATUS_TEXT.get(Status.InternalServerError),
+				status: STATUS_CODE.InternalServerError,
+				statusText: STATUS_TEXT[STATUS_CODE.InternalServerError],
 			},
 		);
 	}
@@ -159,7 +185,7 @@ author`,
 }
 let formPageResponse: Response | false = false;
 
-await serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
 	const url = new URL(req.url);
 	const { pathname } = url;
 	let response: Response;
@@ -177,17 +203,60 @@ await serve(async (req: Request) => {
 			}
 			break;
 		}
+		case "/captcha.png": {
+			const captcha = createCaptcha(
+				{
+					height: 100,
+					width: 300,
+					captcha: {
+						characters: 6,
+						size: 40,
+						font: "Sans",
+						skew: true,
+						colors: [],
+						rotate: 5,
+						color: "#32cf7e",
+						opacity: 0.8,
+					},
+					decoy: {
+						color: "#646566",
+						font: "Sans",
+						size: 10,
+						opacity: 0.5,
+						total: 10,
+					},
+					trace: {
+						size: 5,
+						color: "#32cf7e",
+						opacity: 1,
+					},
+				},
+			);
+			const captchaCookie = await hashCaptcha(captcha.text);
+			const headers = new Headers();
+			setCookie(headers, {
+				name: "captcha",
+				value: captchaCookie,
+				httpOnly: true,
+				maxAge: 3600,
+				path: "/",
+				sameSite: "Strict",
+			});
+			headers.set("Content-Type", "image/png");
+
+			response = new Response(captcha.image, {
+				headers,
+			});
+			break;
+		}
 		default: {
 			response = new Response("Not found", {
-				status: Status.NotFound,
-				statusText: STATUS_TEXT.get(Status.NotFound),
+				status: STATUS_CODE.NotFound,
+				statusText: STATUS_TEXT[STATUS_CODE.NotFound],
 			});
 			break;
 		}
 	}
 
 	return response;
-}, {
-	onListen: ({ hostname, port }) =>
-		log.info(`Listening on http://${hostname}${port === 80 ? "" : `:${port}`}`),
 });
