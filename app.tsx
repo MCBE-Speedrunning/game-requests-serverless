@@ -18,6 +18,9 @@ import {
 	STATUS_TEXT,
 } from "./deps.ts";
 
+// Minecraft was released on May 13, 2009
+// We are setting the limit to 01/01/2009 to give some leanway
+const minimumReleaseDate = new Date(2009, 0, 1).getTime();
 const captchaPrefix = Deno.env.get("CAPTCHA_PREFIX") ?? "captcha-prefix";
 const textEncoder = new TextEncoder();
 
@@ -50,7 +53,10 @@ async function hashCaptcha(captcha: string) {
 }
 
 function addSecurityHeaders(headers: Headers) {
-	headers.set("Content-Security-Policy", "img-src 'self' data:; script-src-elem 'unsafe-inline'");
+	headers.set(
+		"Content-Security-Policy",
+		"img-src 'self' data:; script-src-elem 'unsafe-inline'",
+	);
 	headers.set("Cross-Origin-Opener-Policy", "same-origin");
 	headers.set("Cross-Origin-Resource-Policy", "same-origin");
 	headers.set(
@@ -105,10 +111,14 @@ author`,
 			},
 		);
 	}
+
 	const edition = body.get("edition")!;
 
 	if (!(edition in webhookURL)) {
-		return new Response(`Bad edition: ${edition}`);
+		return new Response(`Bad edition: ${edition}`, {
+			status: STATUS_CODE.BadRequest,
+			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
+		});
 	}
 
 	const game = {
@@ -124,6 +134,16 @@ author`,
 			? new Date(body.get("releasedate")!).getTime()
 			: "No release date provided",
 	};
+
+	if (
+		typeof game.releasedate === "number" &&
+		game.releasedate < minimumReleaseDate
+	) {
+		return new Response(`Invalid date: ${new Date(game.releasedate)}`, {
+			status: STATUS_CODE.BadRequest,
+			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
+		});
+	}
 
 	const discordResponse = await fetch(
 		// @ts-ignore We check above that this is correct.
