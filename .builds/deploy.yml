@@ -1,0 +1,44 @@
+image: archlinux
+packages:
+  - curl
+  - unzip
+  - jq
+sources:
+  - https://git.sr.ht/~aninternettroll/game-requests-serverless
+secrets:
+  - 1cc0b6bd-73f0-427e-93a2-4f765dc11ba0
+  - 85db9800-9aca-4fee-9ab0-8a072ed1485a
+triggers:
+  - action: "email"
+    condition: "always"
+    to: "Luca <luca@lucamatei.com>"
+tasks:
+  - setup: |
+      export PATH="$PATH:$HOME/.local/bin"
+      curl -fsSLO https://deno.land/install.sh
+      DENO_INSTALL="$HOME/.local" sh install.sh
+      DENO_INSTALL_ROOT="$HOME/.local" deno install -Arf https://deno.land/x/deploy/deployctl.ts
+  - build: |
+      export PATH="$PATH:$HOME/.local/bin"
+      cd game-requests-serverless
+      deno check app.tsx
+  - deploy: |
+      export PATH="$PATH:$HOME/.local/bin"
+      cd game-requests-serverless
+      set +x
+      echo "CAPTCHA_PREFIX=$(</dev/urandom tr -dc -- "a-zA-Z0-9" | head -c "64")" > tmp.env
+      export DENO_DEPLOY_TOKEN="$(cat ~/game-requests-serverless-deploy-key)"
+      set -x
+      deployctl deploy \
+          --prod \
+          --color=never \
+          --entrypoint="./app.tsx" \
+          --project=minecraft-speedrun-form \
+          --env-file=tmp.env \
+          --env-file=~/game-requests-serverless-deploy-config
+      deployment_id="$(deployctl deployments list --project minecraft-speedrun-form --format=json | jq -r '. |= sort_by(.createdAt) | reverse | .[].deployment.id' | head -n 1)"
+      deployctl deployments redeploy \
+         --prod \
+         --project=minecraft-speedrun-form \
+         --id="$deployment_id"
+
