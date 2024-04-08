@@ -1,0 +1,65 @@
+name: Deno
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Run checks
+        run: deno check app.tsx
+
+  publish:
+    if: github.repository == 'MCBE-Speedrunning/game-requests-serverless' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    env:
+      DENO_DEPLOY_TOKEN: ${{ secrets.DENO_DEPLOY_TOKEN }}
+      BEDROCK: ${{ secrets.BEDROCK }}
+      JAVA: ${{ secrets.JAVA }}
+      OTHER: ${{ secrets.OTHER }}
+      PROJECT_NAME: "minecraft-speedrun-form"
+
+    steps:
+      - name: Setup repo
+        uses: actions/checkout@v2
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Deploy
+        run: |
+          deno install -Arf https://deno.land/x/deploy/deployctl.ts
+          echo "CAPTCHA_PREFIX=$(</dev/urandom tr -dc -- "a-zA-Z0-9" | head -c "64")" > tmp.env
+
+          deployctl deploy \
+            --prod \
+            --color=never \
+            --entrypoint="./app.tsx" \
+            --project="$PROJECT_NAME" \
+            --env=BEDROCK="$BEDROCK" \
+            --env=JAVA="$JAVA" \
+            --env=OTHER="$OTHER" \
+            --env="CAPTCHA_PREFIX=$(</dev/urandom tr -dc -- "a-zA-Z0-9" | head -c "64")"
+
+          deployment_id="$(deployctl deployments list --project $PROJECT_NAME --format=json | jq -r '. |= sort_by(.createdAt) | reverse | .[].deployment.id' | head -n 1)"
+          deployctl deployments redeploy \
+            --prod \
+            --project=$PROJECT_NAME \
+            --id="$deployment_id"
+
