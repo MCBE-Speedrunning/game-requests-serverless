@@ -8,4 +8,4 @@ export const webhookURL = {
 	bedrock: Deno.env.get("BEDROCK"),
 	other: Deno.env.get("OTHER"),
 	java: Deno.env.get("JAVA"),
-};
+} as const;

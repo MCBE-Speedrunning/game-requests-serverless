@@ -88,7 +88,7 @@ async function submitForm(req: Request): Promise<Response> {
 	const { captcha } = getCookies(req.headers);
 	const captchaHash = await hashCaptcha(body.get("captcha")?.trim() ?? "");
 
-	if (await hashCaptcha(body.get("captcha")?.trim() ?? "") !== captcha) {
+	if (captchaHash !== captcha) {
 		return new Response("Captcha failed, please try again.", {
 			status: STATUS_CODE.BadRequest,
 			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
@@ -155,6 +155,7 @@ author`,
 			},
 			body: JSON.stringify({
 				content: null,
+				thread_name: game.name,
 				embeds: [
 					{
 						color: 2424603,
