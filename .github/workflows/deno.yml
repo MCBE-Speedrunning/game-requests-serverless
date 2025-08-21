@@ -55,7 +55,7 @@ jobs:
 
       - name: Deploy
         run: |
-          deno install -Arf https://deno.land/x/deploy/deployctl.ts
+          deno install -gArf jsr:@deno/deployctl
           echo "CAPTCHA_PREFIX=$(</dev/urandom tr -dc -- "a-zA-Z0-9" | head -c "64")" > tmp.env
 
           deployctl deploy \
