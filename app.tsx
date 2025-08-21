@@ -1,18 +1,15 @@
 #!/usr/bin/env -S deno run --allow-net --allow-env=BEDROCK,OTHER,JAVA,CAPTCHA_PREFIX,DENO_DEPLOYMENT_ID --allow-read=.env,.env.defaults --no-check --watch
 
 /** @jsx h */
-import {
-	getCookies,
-	setCookie,
-} from "https://deno.land/std@0.207.0/http/cookie.ts";
 import { Form } from "./components/Form.tsx";
 import { webhookURL } from "./config.ts";
 import {
 	createCaptcha,
 	encodeHex,
 	formSelect,
+	getCookies,
 	h,
-	log,
+	setCookie,
 	ssr,
 	STATUS_CODE,
 	STATUS_TEXT,
@@ -204,7 +201,7 @@ author`,
 	);
 
 	if (!discordResponse.ok) {
-		log.debug(`${discordResponse.status}: ${await discordResponse.text()}`);
+		console.debug(`${discordResponse.status}: ${await discordResponse.text()}`);
 		return new Response(
 			"Something went wrong and your request was not delivered. Please report this incident to an admin.",
 			{
@@ -239,34 +236,32 @@ Deno.serve(async (req: Request) => {
 			break;
 		}
 		case "/captcha.png": {
-			const captcha = createCaptcha(
-				{
-					height: 100,
-					width: 300,
-					captcha: {
-						characters: 6,
-						size: 40,
-						font: "Sans",
-						skew: true,
-						colors: [],
-						rotate: 5,
-						color: "#32cf7e",
-						opacity: 0.8,
-					},
-					decoy: {
-						color: "#646566",
-						font: "Sans",
-						size: 10,
-						opacity: 0.5,
-						total: 10,
-					},
-					trace: {
-						size: 5,
-						color: "#32cf7e",
-						opacity: 1,
-					},
+			const captcha = createCaptcha({
+				height: 100,
+				width: 300,
+				captcha: {
+					characters: 6,
+					size: 40,
+					font: "Sans",
+					skew: true,
+					colors: [],
+					rotate: 5,
+					color: "#32cf7e",
+					opacity: 0.8,
 				},
-			);
+				decoy: {
+					color: "#646566",
+					font: "Sans",
+					size: 10,
+					opacity: 0.5,
+					total: 10,
+				},
+				trace: {
+					size: 5,
+					color: "#32cf7e",
+					opacity: 1,
+				},
+			});
 			const captchaCookie = await hashCaptcha(captcha.text);
 			const headers = new Headers();
 			setCookie(headers, {

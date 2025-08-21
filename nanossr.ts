@@ -6,18 +6,15 @@
  */
 /// <reference lib="dom" />
 export * from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
-export { tw } from "https://esm.sh/twind@0.16.19?pin=v135&exports=tw,setup";
+export { tw } from "npm:twind@0.16.19";
 
 import {
 	Helmet,
 	renderSSR as nanoRender,
-} from "https://deno.land/x/nano_jsx@v0.0.32/mod.ts";
-import { setup } from "https://esm.sh/twind@0.16.19?pin=v135&exports=tw,setup";
-import {
-	getStyleTag,
-	virtualSheet,
-} from "https://esm.sh/twind@0.16.19/sheets?pin=v135&exports=getStyleTag,virtualSheet";
-import typography from "https://esm.sh/@twind/typography@0.0.2?pin=v86";
+} from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
+import { setup } from "npm:twind@0.16.19";
+import { getStyleTag, virtualSheet } from "npm:twind@0.16.19/sheets";
+import typography from "npm:@twind/typography@0.0.2";
 
 let SHEET_SINGLETON: any = null;
 function sheet(twOptions = {}) {
@@ -30,7 +27,11 @@ function setupSheet(twOptions: Record<string, any>) {
 	setup({
 		...twOptions,
 		sheet,
-		plugins: { ...typography(), ...twOptions?.plugins },
+		plugins: {
+			// @ts-expect-error Type is wrong
+			...typography(),
+			...twOptions?.plugins,
+		},
 	});
 	return sheet;
 }

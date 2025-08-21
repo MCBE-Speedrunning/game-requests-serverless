@@ -41,4 +41,3 @@ tasks:
          --prod \
          --project=minecraft-speedrun-form \
          --id="$deployment_id"
-

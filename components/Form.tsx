@@ -60,14 +60,6 @@ export function Form({ message }: { message?: string }) {
 
 				<BreakLine />
 
-				<hr />
-				<Link
-					href="https://github.com/MCBE-Speedrunning/game-requests-serverless"
-					target="_blank"
-				>
-					Git Repository
-				</Link>
-
 				<form action="/" method="POST">
 					<Label htmlFor="edition">
 						Minecraft Edition

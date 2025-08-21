@@ -1,0 +1,5 @@
+{
+	"imports": {
+		"https://deno.land/x/canvas@v1.3.0/mod.ts": "https://deno.land/x/canvas@v1.4.2/mod.ts"
+	}
+}

@@ -1,7 +1,7 @@
 import { load } from "./deps.ts";
 
 if (!Deno.env.get("DENO_DEPLOYMENT_ID")) {
-	await load({ export: true, examplePath: null, defaultsPath: null });
+	await load({ export: true });
 }
 
 export const webhookURL = {

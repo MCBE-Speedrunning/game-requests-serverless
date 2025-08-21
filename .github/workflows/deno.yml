@@ -62,4 +62,3 @@ jobs:
             --prod \
             --project=$PROJECT_NAME \
             --id="$deployment_id"
-
