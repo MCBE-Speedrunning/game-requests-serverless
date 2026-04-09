@@ -1,12 +1,11 @@
 /** @jsx h */
 /** @jsxFrag Fragment */
-import { Fragment, h, Helmet, tw } from "../deps.ts";
+import { Fragment, h, Helmet, tx } from "../deps.ts";
 import { webhookURL } from "../config.ts";
 import { Input } from "./Input.tsx";
 import { Label } from "./Label.tsx";
 import { TextArea } from "./TextArea.tsx";
 import { Rules } from "./Rules.tsx";
-import { Link } from "./Link.tsx";
 import { Header } from "./Header.tsx";
 import { BreakLine } from "./BreakLine.tsx";
 
@@ -16,7 +15,7 @@ export function Form({ message }: { message?: string }) {
 			<Helmet>
 				<html lang="en" />
 				<body
-					class={tw`m-0 bg-white text-black dark:text-white dark:bg-gray-900`}
+					class={tx`m-0 bg-white text-black dark:text-white dark:bg-gray-900`}
 				/>
 				<title>
 					Minecraft Leaderboard Request Form
@@ -40,11 +39,11 @@ export function Form({ message }: { message?: string }) {
 			</Helmet>
 
 			<div
-				class={tw`container mx-auto xl:px-96 px-4 py-8`}
+				class={tx`container mx-auto xl:px-96 px-4 py-8`}
 			>
 				{message
 					? (
-						<h1 class={tw`text-green-600 text-4xl font-bold py-4`}>
+						<h1 class={tx`text-green-600 text-4xl font-bold py-4`}>
 							{message}
 						</h1>
 					)
@@ -68,17 +67,18 @@ export function Form({ message }: { message?: string }) {
 							id="edition"
 							name="edition"
 							required
-							class={tw`
+							class={tx`
 								block
 								mt-1
 								rounded-md
 								border-gray-300
 								shadow-sm
-								form-select
 								bg-gray-100
-								w-1/2
+								w-full
+								border-2
+								p-2
 								dark:bg-gray-700
-								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 focus:w-full
+								focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
 							`}
 						>
 							Edition
@@ -127,14 +127,16 @@ export function Form({ message }: { message?: string }) {
 							id="releasedate"
 							name="releasedate"
 							required
-							class={tw`
+							class={tx`
+								mt-1
+								p-2
 								rounded-md
 								block
-								w-1/2
+								w-full
 								text-black
 								bg-gray-100
 								border-2
-								focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
+								focus:border-indigo-300 focus:bg-white focus:text-black focus:ring-0
 								dark:bg-gray-700 dark:text-white`}
 							pattern="\d{4}-\d{2}-\d{2}"
 						/>
@@ -204,19 +206,10 @@ export function Form({ message }: { message?: string }) {
 						/>
 					</Label>
 
-					<Label htmlFor="captcha">
-						Please type the characters below
-						<img
-							src="/captcha.png"
-							alt="Captcha image showing various letters and numbers"
-						/>
-						<Input id="captcha" name="captcha" maxlength="10" required />
-					</Label>
-
 					<BreakLine />
 
 					<button
-						class={tw`rounded-full bg-gray-100 px-4 py-2 dark:text-black`}
+						class={tx`rounded-md bg-gray-100 px-4 py-2 dark:text-black`}
 						type="submit"
 					>
 						Submit

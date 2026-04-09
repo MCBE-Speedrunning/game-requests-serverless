@@ -1,9 +1,9 @@
 /** @jsx h */
-import { h, tw } from "../deps.ts";
+import { h, tx } from "../deps.ts";
 
 export function TextArea(
 	{ children, name, placeholder, maxlength, required = false, id }: {
-		children?: any;
+		children?: unknown;
 		name: string;
 		placeholder?: string;
 		maxlength: number | string;
@@ -18,15 +18,16 @@ export function TextArea(
 			maxlength={maxlength}
 			placeholder={placeholder}
 			required={required}
-			class={tw`
+			class={tx`
 				mt-1
-				w-1/2
+				p-2
+				w-full
 				block
 				rounded-md
 				bg-gray-100
 				dark:bg-gray-700
 				border-2
-				focus:border-black focus:bg-white focus:text-black focus:ring-0 focus:w-full
+				focus:border-indigo-300 focus:bg-white focus:text-black focus:ring-0
 			`}
 		>
 			{children}

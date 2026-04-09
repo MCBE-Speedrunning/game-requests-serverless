@@ -124,4 +124,3 @@ jobs:
                 --org "${DENO_DEPLOY_ORGANISATION_NAME}" \
                 --app "${PROJECT_NAME}" \
                 --token="${DENO_DEPLOY_TOKEN}"
-

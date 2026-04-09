@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, tw } from "../deps.ts";
+import { h, tx } from "../deps.ts";
 import { Link } from "./Link.tsx";
 import { BreakLine } from "./BreakLine.tsx";
 import { Header } from "./Header.tsx";
@@ -19,7 +19,7 @@ export function Rules() {
 			<Link href="https://www.speedrun.com/moderationrules">
 				Moderation Rules
 			</Link>. In addition, they are required to set up rules and categories; if
-			a game is not set up within two weeks, it is automatically flagged for
+			a game is not set up within txo weeks, it is automatically flagged for
 			deletion. Leaderboards should be viewed as owned by the community and
 			curated by the moderators. A user who requests a leaderboard does not own
 			the leaderboard.
@@ -49,7 +49,7 @@ export function Rules() {
 			the game and the speedrun will help us understand it further. In addition
 			to information about the game and the run, examples of other categories
 			(and additional videos) can be useful to us. This field is also useful to
-			explain difference between the game you are submitting and games that
+			explain difference betxeen the game you are submitting and games that
 			already exist on the site, in the case that your game is similar to others
 			existing or shares a name with others existing. Please review the{" "}
 			<Link href="https://www.speedrun.com/gamerequestrules">
@@ -72,7 +72,7 @@ export function Rules() {
 
 			<BreakLine />
 
-			<ul class={tw`list-disc list-inside`}>
+			<ul class={tx`list-disc list-inside`}>
 				<li>
 					<Link href="https://scratch.mit.edu/">
 						Scratch Games

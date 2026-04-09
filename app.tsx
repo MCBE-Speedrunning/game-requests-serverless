@@ -3,29 +3,11 @@
 /** @jsx h */
 import { Form } from "./components/Form.tsx";
 import { webhookURL } from "./config.ts";
-import {
-	createCaptcha,
-	encodeHex,
-	formSelect,
-	getCookies,
-	h,
-	setCookie,
-	ssr,
-	STATUS_CODE,
-	STATUS_TEXT,
-} from "./deps.ts";
+import { h, ssr, STATUS_CODE, STATUS_TEXT } from "./deps.ts";
 
 // Minecraft was released on May 13, 2009
 // We are setting the limit to 01/01/2009 to give some leanway
 const minimumReleaseDate = new Date(2009, 0, 1).getTime();
-const captchaPrefix = Deno.env.get("CAPTCHA_PREFIX") ?? "captcha-prefix";
-const textEncoder = new TextEncoder();
-
-const twConfig = {
-	plugins: {
-		"form-select": formSelect,
-	},
-};
 
 function validateGameRequestBody(body: URLSearchParams): boolean {
 	return (
@@ -39,14 +21,6 @@ function validateGameRequestBody(body: URLSearchParams): boolean {
 		body.has("author") &&
 		body.has("releasedate")
 	);
-}
-
-async function hashCaptcha(captcha: string) {
-	const hashBuffer = await crypto.subtle.digest(
-		"SHA-256",
-		textEncoder.encode(captchaPrefix + captcha.toUpperCase()),
-	);
-	return encodeHex(hashBuffer);
 }
 
 function addSecurityHeaders(headers: Headers) {
@@ -77,16 +51,6 @@ async function submitForm(req: Request): Promise<Response> {
 		body = new URLSearchParams(await req.text());
 	} catch (err) {
 		return new Response(`Bad body :/\n${err}`, {
-			status: STATUS_CODE.BadRequest,
-			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
-		});
-	}
-
-	const { captcha } = getCookies(req.headers);
-	const captchaHash = await hashCaptcha(body.get("captcha")?.trim() ?? "");
-
-	if (captchaHash !== captcha) {
-		return new Response("Captcha failed, please try again.", {
 			status: STATUS_CODE.BadRequest,
 			statusText: STATUS_TEXT[STATUS_CODE.BadRequest],
 		});
@@ -201,7 +165,7 @@ author`,
 	);
 
 	if (!discordResponse.ok) {
-		console.debug(`${discordResponse.status}: ${await discordResponse.text()}`);
+		console.error(`${discordResponse.status}: ${await discordResponse.text()}`);
 		return new Response(
 			"Something went wrong and your request was not delivered. Please report this incident to an admin.",
 			{
@@ -211,9 +175,7 @@ author`,
 		);
 	}
 
-	return ssr(() => <Form message="Form submitted" />, {
-		tw: twConfig,
-	});
+	return ssr(() => <Form message="Form submitted" />);
 }
 let formPageResponse: Response | false = false;
 
@@ -227,56 +189,10 @@ Deno.serve(async (req: Request) => {
 			if (req.method === "POST") response = await submitForm(req);
 			else {
 				if (!formPageResponse) {
-					formPageResponse = ssr(() => <Form />, {
-						tw: twConfig,
-					});
+					formPageResponse = ssr(() => <Form />);
 				}
 				response = formPageResponse.clone();
 			}
-			break;
-		}
-		case "/captcha.png": {
-			const captcha = createCaptcha({
-				height: 100,
-				width: 300,
-				captcha: {
-					characters: 6,
-					size: 40,
-					font: "Sans",
-					skew: true,
-					colors: [],
-					rotate: 5,
-					color: "#32cf7e",
-					opacity: 0.8,
-				},
-				decoy: {
-					color: "#646566",
-					font: "Sans",
-					size: 10,
-					opacity: 0.5,
-					total: 10,
-				},
-				trace: {
-					size: 5,
-					color: "#32cf7e",
-					opacity: 1,
-				},
-			});
-			const captchaCookie = await hashCaptcha(captcha.text);
-			const headers = new Headers();
-			setCookie(headers, {
-				name: "captcha",
-				value: captchaCookie,
-				httpOnly: true,
-				maxAge: 3600,
-				path: "/",
-				sameSite: "Strict",
-			});
-			headers.set("Content-Type", "image/png");
-
-			response = new Response(captcha.image, {
-				headers,
-			});
 			break;
 		}
 		default: {

@@ -5,38 +5,24 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /// <reference lib="dom" />
-export * from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
-export { tw } from "npm:twind@0.16.19";
+export * from "@x/nano_jsx";
 
-import {
-	Helmet,
-	renderSSR as nanoRender,
-} from "https://deno.land/x/nano_jsx@v0.1.0/mod.ts";
-import { setup } from "npm:twind@0.16.19";
-import { getStyleTag, virtualSheet } from "npm:twind@0.16.19/sheets";
-import typography from "npm:@twind/typography@0.0.2";
+import { Helmet, renderSSR as nanoRender } from "@x/nano_jsx";
+import { stringify, twind, tx, virtual } from "@npm/@twind/core";
+import presetTailwind from "@npm/@twind/preset-tailwind";
 
-let SHEET_SINGLETON: any = null;
-function sheet(twOptions = {}) {
-	return SHEET_SINGLETON ?? (SHEET_SINGLETON = setupSheet(twOptions));
-}
+const tw = twind({ presets: [presetTailwind()] }, virtual());
+const customTx = tx.bind(tw);
 
-// Setup TW sheet singleton
-function setupSheet(twOptions: Record<string, any>) {
-	const sheet = virtualSheet();
-	setup({
-		...twOptions,
-		sheet,
-		plugins: {
-			// @ts-expect-error Type is wrong
-			...typography(),
-			...twOptions?.plugins,
-		},
-	});
-	return sheet;
-}
+export { customTx as tx };
 
-function html({ body, head, footer, styleTag, attributes }: {
+function html({
+	body,
+	head,
+	footer,
+	styleTag,
+	attributes,
+}: {
 	body: string;
 	head: string[];
 	footer: string[];
@@ -50,7 +36,7 @@ function html({ body, head, footer, styleTag, attributes }: {
 		};
 	};
 }) {
-	return (`
+	return `
 <!DOCTYPE html>
 <html ${attributes.html.toString()}>
   <head>
@@ -64,21 +50,24 @@ function html({ body, head, footer, styleTag, attributes }: {
     ${footer.join("\n")}
   </body>
 </html>
-`);
+`;
 }
 
-export function ssr(render: CallableFunction, options?: any) {
-	sheet(options?.tw ?? {}).reset();
+export interface SsrOptions {
+	pathname?: string;
+	clearState?: boolean;
+}
+
+export function ssr(render: CallableFunction, options?: SsrOptions) {
 	const app = nanoRender(render(), options);
 	const { body, head, footer, attributes } = Helmet.SSR(app);
-	const styleTag = getStyleTag(sheet());
-	return new Response(
-		html({ body, head, footer, styleTag, attributes }),
-		{ headers: { "content-type": "text/html" } },
-	);
+	const styleTag = `<style>${stringify(tw.target)}</style>`;
+	return new Response(html({ body, head, styleTag, footer, attributes }), {
+		headers: { "content-type": "text/html" },
+	});
 }
 
-export function memoizedSSR(render: CallableFunction, options?: any) {
+export function memoizedSSR(render: CallableFunction, options?: SsrOptions) {
 	let mresp: Response | undefined;
 	return () => {
 		const resp = mresp ?? (mresp = ssr(render, options));

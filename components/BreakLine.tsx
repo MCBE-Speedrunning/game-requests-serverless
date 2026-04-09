@@ -1,6 +1,6 @@
 /** @jsx h */
-import { h, tw } from "../deps.ts";
+import { h, tx } from "../deps.ts";
 
 export function BreakLine() {
-	return <div class={tw`py-4`} />;
+	return <div class={tx`py-4`} />;
 }

@@ -1,5 +1,5 @@
 /** @jsx h */
-import { h, tw } from "../deps.ts";
+import { h, tx } from "../deps.ts";
 
 export function Link({
 	href,
@@ -8,20 +8,17 @@ export function Link({
 }: {
 	href: string;
 	target?: string;
-	children: any;
+	children: unknown;
 }) {
 	return (
 		<a
 			href={href}
 			target={target}
-			class={tw`
+			class={tx`
 				text-blue-500
-				no-underline
-				transition-all
-				ease-in-out
-				duration-300
-				inline-block
-				hover:underline`}
+				underline
+				rounded-md
+				focus:border-indigo-300 focus:outline-offset-4 focus:outline-solid`}
 		>
 			{children}
 		</a>

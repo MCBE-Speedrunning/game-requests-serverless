@@ -1,11 +1,11 @@
 /** @jsx h */
-import { h, tw } from "../deps.ts";
+import { h, tx } from "../deps.ts";
 
 export function Label(
-	{ children, htmlFor }: { children: any; htmlFor: string },
+	{ children, htmlFor }: { children: unknown; htmlFor: string },
 ) {
 	return (
-		<label class={tw`block text-2xl font-bold`} htmlFor={htmlFor}>
+		<label class={tx`block text-2xl font-bold`} htmlFor={htmlFor}>
 			{children}
 		</label>
 	);
